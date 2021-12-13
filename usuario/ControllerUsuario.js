@@ -51,6 +51,18 @@ router.get("/usuarios", (req, res) => {
 	})
 });
 
+// LISTAR APENAR 1 USUÁRIO
+router.get("/usuario/:email", (req, res) => {
+	const { email } = req.params;
+
+	Usuario.findOne({ where: { email } }).then(usuario => {
+		res.statusCode = 200;
+		res.json(usuario)
+	}).catch(() => {
+		res.statusCode = 500;
+	})
+})
+
 // EXCLUÍR USUÁRIO
 router.delete("/usuario/:email", (req, res) => {
 	const { email } = req.params;
@@ -61,6 +73,31 @@ router.delete("/usuario/:email", (req, res) => {
 			res.json(usuarios)
 		}).catch(() => {
 			res.json({ messageErr: "Ocorreu um erro na listagem, mas o usuário foi excluído. Recarregue para tentar novamente!" })
+		})
+	}).catch(() => {
+		res.statusCode = 500;
+	})
+})
+
+// EDITAR USUARIO
+router.put("/usuario/:email", (req, res) => {
+	const emailUser = req.params.email;
+	const { email, nome, nascimento, senha } = req.body;
+
+	Usuario.update(
+		{
+			email,
+			nome,
+			nascimento,
+			senha
+		},
+		{
+			where: { email: emailUser }
+		}
+	).then(() => {
+		res.statusCode = 200;
+		Usuario.findOne({ where: { email: emailUser } }).then(usuario => {
+			res.json(usuario)
 		})
 	}).catch(() => {
 		res.statusCode = 500;
